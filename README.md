@@ -1,3 +1,3 @@
-# app_exercicio_aula1
+# App Receitas
 
 A new Flutter project.
