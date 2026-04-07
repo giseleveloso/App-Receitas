@@ -14,7 +14,7 @@ class DBHelper {
 
   Future<Database> _initDb() async {
     return openDatabase(
-      join(await getDatabasesPath(), 'receitas.db'),
+      join(await getDatabasesPath(), 'a1receitas.db'),
       onCreate: (db, v) async {
         await db.execute('''
           CREATE TABLE receitas(
@@ -85,6 +85,13 @@ class DBHelper {
     final maps = await db.query('receitas',
         where: 'favorito = 1', orderBy: 'criado_em DESC');
     return maps.map(Receita.fromMap).toList();
+  }
+
+  Future<void> resetDb() async {
+    final path = join(await getDatabasesPath(), 'receitas.db');
+    await _db?.close();
+    _db = null;
+    await deleteDatabase(path);
   }
 
   Future<void> toggleFavorito(String id, bool favorito) async {

@@ -128,6 +128,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         CarouselSlider.builder(
           itemCount: _destaques.length,
+          // index é a posição do item na lista _destaques
+          // realIndex é a posição "absoluta" no carrossel infinito
           itemBuilder: (context, index, realIndex) {
             final receita = _destaques[index];
             return Padding(
@@ -195,8 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           options: CarouselOptions(
             height: 200,
-            viewportFraction: 0.85,
-            enableInfiniteScroll: _destaques.length > 1,
+            viewportFraction: 0.85, // Cada card ocupa 85%
+            enableInfiniteScroll: _destaques.length > 1, // Loop só se tiver >1 item
             autoPlay: _destaques.length > 1,
             autoPlayInterval: const Duration(seconds: 4),
             onPageChanged: (index, _) => setState(() => _carouselIndex = index),
@@ -207,9 +209,9 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.only(top: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
+              children: List.generate( // Cria os pontinhos indicadores
                 _destaques.length,
-                (i) => AnimatedContainer(
+                (i) => AnimatedContainer( // O ponto ativo fica mais largo
                   duration: const Duration(milliseconds: 300),
                   margin: const EdgeInsets.symmetric(horizontal: 3),
                   width: _carouselIndex == i ? 20 : 8,

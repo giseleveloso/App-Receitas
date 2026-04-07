@@ -60,7 +60,7 @@ class ReceitaCard extends StatelessWidget {
                       style: const TextStyle(
                           fontWeight: FontWeight.w700, fontSize: 15),
                       maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      overflow: TextOverflow.ellipsis, // adiciona ... se for muito grande
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -75,7 +75,7 @@ class ReceitaCard extends StatelessWidget {
             if (onFavoritoChanged != null)
               IconButton(
                 icon: Icon(
-                  receita.favorito ? Icons.favorite : Icons.favorite_border,
+                  receita.favorito ? Icons.favorite : Icons.favorite_border,  // cheio ou vazio
                   color: receita.favorito
                       ? AppTheme.laranja
                       : AppTheme.cinzaTexto,

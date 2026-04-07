@@ -21,17 +21,19 @@ class _NovaReceitaScreenState extends State<NovaReceitaScreen> {
   final _uuid = const Uuid();
   final _picker = ImagePicker();
 
-  final _nomeCtrl = TextEditingController();
+  //Lê e escreve nos campos de texto
+  final _nomeCtrl = TextEditingController(); 
   final _tempoCtrl = TextEditingController(text: '15');
   final _porcoesCtrl = TextEditingController(text: '2');
   final _ingredienteCtrl = TextEditingController();
   final _passoCtrl = TextEditingController();
 
   String _categoria = 'Almoço';
+  // Lista em memória, atualizada com setState
   final List<String> _ingredientes = [];
   final List<String> _passos = [];
   File? _imagem;
-  bool _salvando = false;
+  bool _salvando = false; // Desabilita o botão durante o save
 
   @override
   void dispose() {
@@ -43,7 +45,7 @@ class _NovaReceitaScreenState extends State<NovaReceitaScreen> {
     super.dispose();
   }
 
-  Future<void> _escolherImagem() async {
+  Future<void> _escolherImagem() async { //escolhe da galeria
     final picked = await _picker.pickImage(
         source: ImageSource.gallery, maxWidth: 800, imageQuality: 80);
     if (picked != null) setState(() => _imagem = File(picked.path));
@@ -68,6 +70,7 @@ class _NovaReceitaScreenState extends State<NovaReceitaScreen> {
   }
 
   Future<void> _salvar() async {
+    //Verifica se estão vazios
     if (!_formKey.currentState!.validate()) return;
     if (_ingredientes.isEmpty) {
       _snack('Adicione pelo menos um ingrediente.', Colors.orange);
@@ -133,6 +136,7 @@ class _NovaReceitaScreenState extends State<NovaReceitaScreen> {
                   border: Border.all(
                       color: AppTheme.laranja.withValues(alpha: 0.4), width: 2),
                 ),
+                //Se tiver adicionado alguma imagem, mostra ela, senão sinal para adicionar
                 child: _imagem != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(14),
@@ -170,7 +174,7 @@ class _NovaReceitaScreenState extends State<NovaReceitaScreen> {
                 child: TextFormField(
                   controller: _tempoCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: _inputDeco('Tempo (min)', '15'),
+                  decoration: _inputDeco('Tempo ', '15'),
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Obrigatório' : null,
                 ),

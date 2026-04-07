@@ -11,10 +11,10 @@ class DetalheSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.75,
-      maxChildSize: 0.95,
-      minChildSize: 0.5,
+    return DraggableScrollableSheet( //Abre deslizando de baixo
+      initialChildSize: 0.75, //começa ocupando 75%
+      maxChildSize: 0.95, // pode expandir até 95%
+      minChildSize: 0.5, //pode encolher até 50%
       builder: (_, controller) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,

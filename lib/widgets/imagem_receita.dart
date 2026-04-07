@@ -18,11 +18,11 @@ class ImagemReceita extends StatelessWidget {
   Widget build(BuildContext context) {
     if (path != null && path!.isNotEmpty) {
       return Image.file(
-        File(path!),
+        File(path!), // Carrega imagem do armazenamento local
         width: width,
         height: height,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _placeholder(),
+        fit: BoxFit.cover, // Preenche o espaço sem distorcer
+        errorBuilder: (_, __, ___) => _placeholder(), // Se falhar, mostra ícone
       );
     }
     return _placeholder();
