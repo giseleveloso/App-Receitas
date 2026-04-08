@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:app_exercicio_aula1/telas/home_screen.dart';
+import 'package:app_exercicio_aula1/telas/main_nav.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -15,6 +15,6 @@ void main() async {
 
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: HomeScreen(),
+    home: MainNav(),
   ));
 }

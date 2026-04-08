@@ -18,6 +18,7 @@ class _MainNavState extends State<MainNav> {
   final _homeKey = GlobalKey<HomeScreenState>();
   final _favoritosKey = GlobalKey<FavoritosScreenState>();
   final _buscarKey = GlobalKey<BuscarScreenState>();
+  final _novaReceitaKey = GlobalKey<NovaReceitaScreenState>();
 
   late final List<Widget> _pages;
 
@@ -28,21 +29,19 @@ class _MainNavState extends State<MainNav> {
       HomeScreen(key: _homeKey),
       FavoritosScreen(key: _favoritosKey),
       BuscarScreen(key: _buscarKey),
+      NovaReceitaScreen(key: _novaReceitaKey, onSaved: _onReceitaSalva),
     ];
   }
 
-  Future<void> _onTabTapped(int index) async {
-    if (index == 3) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const NovaReceitaScreen()),
-      );
-      _homeKey.currentState?.reload();
-      _favoritosKey.currentState?.reload();
-      _buscarKey.currentState?.reload();
-      return;
-    }
+  void _onReceitaSalva() {
+    _novaReceitaKey.currentState?.reset();
+    _homeKey.currentState?.reload();
+    _favoritosKey.currentState?.reload();
+    _buscarKey.currentState?.reload();
+    setState(() => _selectedIndex = 0);
+  }
 
+  void _onTabTapped(int index) {
     setState(() => _selectedIndex = index);
 
     if (index == 0) _homeKey.currentState?.reload();

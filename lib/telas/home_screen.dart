@@ -6,16 +6,15 @@ import '../database/db_helper.dart';
 import '../widgets/app_theme.dart';
 import '../widgets/receita_card.dart';
 import '../widgets/detalhes_sheet.dart';
-import 'nova_receita_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   final _db = DBHelper();
 
   List<Receita> _destaques = [];
@@ -28,6 +27,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _carregar();
   }
+
+  Future<void> reload() => _carregar();
 
   Future<void> _carregar() async {
     setState(() => _loading = true);
@@ -56,17 +57,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.cinzaFundo,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppTheme.laranja,
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NovaReceitaScreen()),
-          );
-          _carregar();
-        },
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
       body: _loading
           ? const Center(
               child: CircularProgressIndicator(color: AppTheme.laranja))

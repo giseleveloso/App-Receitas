@@ -9,13 +9,15 @@ import '../widgets/app_theme.dart';
 const _categorias = ['Café da manhã', 'Almoço', 'Jantar', 'Lanche'];
 
 class NovaReceitaScreen extends StatefulWidget {
-  const NovaReceitaScreen({super.key});
+  final VoidCallback? onSaved;
+
+  const NovaReceitaScreen({super.key, this.onSaved});
 
   @override
-  State<NovaReceitaScreen> createState() => _NovaReceitaScreenState();
+  State<NovaReceitaScreen> createState() => NovaReceitaScreenState();
 }
 
-class _NovaReceitaScreenState extends State<NovaReceitaScreen> {
+class NovaReceitaScreenState extends State<NovaReceitaScreen> {
   final _formKey = GlobalKey<FormState>();
   final _db = DBHelper();
   final _uuid = const Uuid();
@@ -43,6 +45,22 @@ class _NovaReceitaScreenState extends State<NovaReceitaScreen> {
     _ingredienteCtrl.dispose();
     _passoCtrl.dispose();
     super.dispose();
+  }
+
+  void reset() {
+    _formKey.currentState?.reset();
+    setState(() {
+      _nomeCtrl.clear();
+      _tempoCtrl.text = '15';
+      _porcoesCtrl.text = '2';
+      _ingredienteCtrl.clear();
+      _passoCtrl.clear();
+      _categoria = 'Almoço';
+      _ingredientes.clear();
+      _passos.clear();
+      _imagem = null;
+      _salvando = false;
+    });
   }
 
   Future<void> _escolherImagem() async { //escolhe da galeria
@@ -95,7 +113,12 @@ class _NovaReceitaScreenState extends State<NovaReceitaScreen> {
         criadoEm: DateTime.now(),
       );
       await _db.inserir(receita);
-      if (mounted) Navigator.pop(context, true);
+      if (!mounted) return;
+      if (widget.onSaved != null) {
+        widget.onSaved!();
+      } else {
+        Navigator.pop(context, true);
+      }
     } catch (e) {
       _snack('Erro ao salvar: $e', Colors.red);
     } finally {
