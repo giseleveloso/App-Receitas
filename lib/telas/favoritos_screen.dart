@@ -53,6 +53,7 @@ class FavoritosScreenState extends State<FavoritosScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
+              width: double.infinity,
               color: AppTheme.branco,
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
               child: const Text(

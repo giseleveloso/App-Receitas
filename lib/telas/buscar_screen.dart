@@ -128,6 +128,7 @@ class BuscarScreenState extends State<BuscarScreen> {
 
   Widget _buildHeader() {
     return Container(
+      width: double.infinity,
       color: AppTheme.branco,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
       child: const Text(
