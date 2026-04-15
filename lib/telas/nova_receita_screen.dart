@@ -5,8 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../database/db_helper.dart';
 import '../modelos/receita.dart';
 import '../widgets/app_theme.dart';
-
-const _categorias = ['Café da manhã', 'Almoço', 'Jantar', 'Lanche'];
+import '../constantes/filtros.dart';
 
 // Tela de formulário para cadastrar uma nova receita.
 // O parâmetro [onSaved] é um callback chamado pelo MainNav após salvar,
@@ -244,7 +243,7 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _categorias.map((c) {
+              children: categorias.map((c) {
                 final sel = _categoria == c;
                 return GestureDetector(
                   onTap: () => setState(() => _categoria = c),

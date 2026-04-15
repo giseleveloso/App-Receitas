@@ -4,25 +4,7 @@ import '../database/db_helper.dart';
 import '../widgets/app_theme.dart';
 import '../widgets/receita_card.dart';
 import '../widgets/detalhes_sheet.dart';
-
-// Opções de filtro por categoria disponíveis na tela
-const List<String> _categorias = [
-  'Todos',
-  'Café da manhã',
-  'Almoço',
-  'Jantar',
-  'Lanche',
-];
-
-// Opções de filtro por tempo máximo de preparo.
-// value null representa "+1 hora" (sem limite superior).
-const List<Map<String, dynamic>> _tempos = [
-  {'label': '5 min', 'value': 5},
-  {'label': '15 min', 'value': 15},
-  {'label': '30 min', 'value': 30},
-  {'label': '1 hora', 'value': 60},
-  {'label': '+1 hora', 'value': null},
-];
+import '../constantes/filtros.dart';
 
 // Tela de busca com filtros por nome/ingrediente, categoria e tempo de preparo.
 // É StatefulWidget porque mantém o estado do campo de busca e dos filtros selecionados.
@@ -70,7 +52,7 @@ class BuscarScreenState extends State<BuscarScreen> {
   void _filtrar() {
     final query = _searchController.text.toLowerCase().trim();
     // Busca o valor numérico correspondente ao label de tempo selecionado
-    final tempoMax = _tempos.firstWhere(
+    final tempoMax = temposFiltro.firstWhere(
       (t) => t['label'] == _tempoLabelSelected,
       orElse: () => {'label': '+1 hora', 'value': null},
     )['value'] as int?;
@@ -212,7 +194,7 @@ class BuscarScreenState extends State<BuscarScreen> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: _categorias.map((cat) {
+          children: ['Todos', ...categorias].map((cat) {
             final selected = cat == _categoriaSelected;
             return GestureDetector(
               onTap: () {
@@ -266,7 +248,7 @@ class BuscarScreenState extends State<BuscarScreen> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: _tempos.map((t) {
+          children: temposFiltro.map((t) {
             final label = t['label'] as String;
             final selected = label == _tempoLabelSelected;
             return GestureDetector(
