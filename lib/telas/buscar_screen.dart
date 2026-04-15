@@ -5,6 +5,7 @@ import '../widgets/app_theme.dart';
 import '../widgets/receita_card.dart';
 import '../widgets/detalhes_sheet.dart';
 
+// Opções de filtro por categoria disponíveis na tela
 const List<String> _categorias = [
   'Todos',
   'Café da manhã',
@@ -13,6 +14,8 @@ const List<String> _categorias = [
   'Lanche',
 ];
 
+// Opções de filtro por tempo máximo de preparo.
+// value null representa "+1 hora" (sem limite superior).
 const List<Map<String, dynamic>> _tempos = [
   {'label': '5 min', 'value': 5},
   {'label': '15 min', 'value': 15},
@@ -21,6 +24,8 @@ const List<Map<String, dynamic>> _tempos = [
   {'label': '+1 hora', 'value': null},
 ];
 
+// Tela de busca com filtros por nome/ingrediente, categoria e tempo de preparo.
+// É StatefulWidget porque mantém o estado do campo de busca e dos filtros selecionados.
 class BuscarScreen extends StatefulWidget {
   const BuscarScreen({super.key});
 
@@ -32,14 +37,15 @@ class BuscarScreenState extends State<BuscarScreen> {
   final _db = DBHelper();
   final _searchController = TextEditingController();
 
-  List<Receita> _todasReceitas = [];
-  List<Receita> _resultados = [];
+  List<Receita> _todasReceitas = []; // cópia local de todas as receitas do banco
+  List<Receita> _resultados = [];    // subconjunto filtrado exibido na tela
   String _categoriaSelected = 'Todos';
   String _tempoLabelSelected = '+1 hora';
 
   @override
   void initState() {
     super.initState();
+    // Sempre que o texto mudar, reaplica os filtros automaticamente
     _searchController.addListener(_filtrar);
     reload();
   }
@@ -50,6 +56,7 @@ class BuscarScreenState extends State<BuscarScreen> {
     super.dispose();
   }
 
+  // Exposto publicamente para que o MainNav possa recarregar ao trocar de aba
   Future<void> reload() async {
     final receitas = await _db.getReceitas();
     setState(() {
@@ -58,8 +65,11 @@ class BuscarScreenState extends State<BuscarScreen> {
     _filtrar();
   }
 
+  // Aplica os três filtros (busca por texto, categoria e tempo) simultaneamente.
+  // Atualiza _resultados com as receitas que passam em todos os critérios.
   void _filtrar() {
     final query = _searchController.text.toLowerCase().trim();
+    // Busca o valor numérico correspondente ao label de tempo selecionado
     final tempoMax = _tempos.firstWhere(
       (t) => t['label'] == _tempoLabelSelected,
       orElse: () => {'label': '+1 hora', 'value': null},
@@ -67,13 +77,16 @@ class BuscarScreenState extends State<BuscarScreen> {
 
     setState(() {
       _resultados = _todasReceitas.where((r) {
+        // Filtro de texto: verifica nome e cada ingrediente
         final matchesSearch = query.isEmpty ||
             r.nome.toLowerCase().contains(query) ||
             r.ingredientes.any((i) => i.toLowerCase().contains(query));
 
+        // Filtro de categoria: "Todos" desativa o filtro
         final matchesCategoria =
             _categoriaSelected == 'Todos' || r.categoria == _categoriaSelected;
 
+        // Filtro de tempo: tempoMax null = sem limite ("+1 hora")
         final matchesTempo = tempoMax == null || r.tempoPreparo <= tempoMax;
 
         return matchesSearch && matchesCategoria && matchesTempo;
@@ -81,6 +94,7 @@ class BuscarScreenState extends State<BuscarScreen> {
     });
   }
 
+  // Abre o painel de detalhes e recarrega os resultados se o favorito mudar
   void _abrirDetalhe(Receita receita) {
     showModalBottomSheet(
       context: context,
@@ -102,6 +116,7 @@ class BuscarScreenState extends State<BuscarScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
+            // Expanded + SingleChildScrollView fazem o conteúdo abaixo do header rolar
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -126,9 +141,10 @@ class BuscarScreenState extends State<BuscarScreen> {
     );
   }
 
+  // Header fixo no topo com fundo branco
   Widget _buildHeader() {
     return Container(
-      width: double.infinity,
+      width: double.infinity, // garante que o fundo se estende até a borda
       color: AppTheme.branco,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
       child: const Text(
@@ -142,6 +158,7 @@ class BuscarScreenState extends State<BuscarScreen> {
     );
   }
 
+  // Campo de texto com ícone de lupa e botão X para limpar a busca
   Widget _buildCampoBusca() {
     return Container(
       decoration: BoxDecoration(
@@ -161,6 +178,7 @@ class BuscarScreenState extends State<BuscarScreen> {
           hintText: 'Buscar por nome ou ingredientes',
           hintStyle: const TextStyle(color: AppTheme.cinzaTexto, fontSize: 14),
           prefixIcon: const Icon(Icons.search, color: AppTheme.cinzaTexto),
+          // Botão X aparece apenas quando há texto digitado
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.close, color: AppTheme.cinzaTexto),
@@ -177,6 +195,7 @@ class BuscarScreenState extends State<BuscarScreen> {
     );
   }
 
+  // Chips de seleção de categoria — o chip selecionado fica laranja
   Widget _buildFiltroCategoria() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,7 +217,7 @@ class BuscarScreenState extends State<BuscarScreen> {
             return GestureDetector(
               onTap: () {
                 setState(() => _categoriaSelected = cat);
-                _filtrar();
+                _filtrar(); // reaplicar filtros ao trocar categoria
               },
               child: Container(
                 padding:
@@ -230,6 +249,7 @@ class BuscarScreenState extends State<BuscarScreen> {
     );
   }
 
+  // Chips de seleção de tempo máximo — funciona igual ao de categoria
   Widget _buildFiltroTempo() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,6 +304,7 @@ class BuscarScreenState extends State<BuscarScreen> {
     );
   }
 
+  // Lista de receitas que passaram pelos filtros, com contador de resultados
   Widget _buildResultados() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -297,6 +318,8 @@ class BuscarScreenState extends State<BuscarScreen> {
           ),
         ),
         const SizedBox(height: 12),
+
+        // Estado vazio: nenhuma receita passou pelos filtros
         if (_resultados.isEmpty)
           Center(
             child: Padding(
@@ -315,6 +338,7 @@ class BuscarScreenState extends State<BuscarScreen> {
             ),
           )
         else
+          // Lista não rolável (o scroll é feito pelo SingleChildScrollView pai)
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

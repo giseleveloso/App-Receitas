@@ -5,6 +5,9 @@ import '../widgets/app_theme.dart';
 import '../widgets/receita_card.dart';
 import '../widgets/detalhes_sheet.dart';
 
+// Tela que exibe apenas as receitas marcadas como favorito.
+// É StatefulWidget porque a lista pode mudar enquanto o app está aberto
+// (ex: usuário desfavorita uma receita no painel de detalhes).
 class FavoritosScreen extends StatefulWidget {
   const FavoritosScreen({super.key});
 
@@ -23,15 +26,17 @@ class FavoritosScreenState extends State<FavoritosScreen> {
     reload();
   }
 
+  // Exposto publicamente para que o MainNav possa recarregar ao trocar de aba
   Future<void> reload() async {
     setState(() => _loading = true);
-    final favoritos = await _db.getDestaques();
+    final favoritos = await _db.getDestaques(); // busca apenas as marcadas como favorito
     setState(() {
       _favoritos = favoritos;
       _loading = false;
     });
   }
 
+  // Abre o painel de detalhes e recarrega a lista se o favorito mudar
   void _abrirDetalhe(Receita receita) {
     showModalBottomSheet(
       context: context,
@@ -52,8 +57,9 @@ class FavoritosScreenState extends State<FavoritosScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header fixo no topo com fundo branco
             Container(
-              width: double.infinity,
+              width: double.infinity, // garante que o fundo se estende até a borda
               color: AppTheme.branco,
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
               child: const Text(
@@ -65,6 +71,8 @@ class FavoritosScreenState extends State<FavoritosScreen> {
                 ),
               ),
             ),
+
+            // Conteúdo principal: loading, estado vazio ou lista de favoritos
             Expanded(
               child: _loading
                   ? const Center(
@@ -72,6 +80,7 @@ class FavoritosScreenState extends State<FavoritosScreen> {
                     )
                   : _favoritos.isEmpty
                       ? _buildEmptyState()
+                      // RefreshIndicator permite puxar para recarregar
                       : RefreshIndicator(
                           onRefresh: reload,
                           color: AppTheme.laranja,
@@ -101,6 +110,7 @@ class FavoritosScreenState extends State<FavoritosScreen> {
     );
   }
 
+  // Exibido quando não há nenhuma receita favoritada ainda
   Widget _buildEmptyState() {
     return Center(
       child: Column(

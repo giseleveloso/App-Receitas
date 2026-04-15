@@ -3,27 +3,32 @@ import 'package:flutter/material.dart';
 import '../modelos/receita.dart';
 import 'app_theme.dart';
 
+// Painel deslizante que exibe todos os detalhes de uma receita.
+// É aberto como um modal bottom sheet (de baixo para cima) nas telas de listagem.
 class DetalheSheet extends StatelessWidget {
   final Receita receita;
-  final VoidCallback onFavoritoChanged;
+  final VoidCallback onFavoritoChanged; //chamado quando o usuário favorita a receita, para que a tela pai possa atualizar a lista
 
   const DetalheSheet({super.key, required this.receita, required this.onFavoritoChanged});
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet( //Abre deslizando de baixo
-      initialChildSize: 0.75, //começa ocupando 75%
-      maxChildSize: 0.95, // pode expandir até 95%
-      minChildSize: 0.5, //pode encolher até 50%
+    // DraggableScrollableSheet permite que o usuário arraste o painel
+    // para expandir ou encolher com o dedo.
+    return DraggableScrollableSheet(
+      initialChildSize: 0.75, // começa ocupando 75% da tela
+      maxChildSize: 0.95,     // pode expandir até 95%
+      minChildSize: 0.5,      // pode encolher até 50%
       builder: (_, controller) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: ListView(
-          controller: controller,
+          controller: controller, // conecta o scroll ao DraggableScrollableSheet
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
           children: [
+            // Indicador visual de arrastar (traço cinza no topo)
             Center(
               child: Container(
                 width: 40,
@@ -35,6 +40,8 @@ class DetalheSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Imagem da receita em largura total
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: ImagemReceita(
@@ -43,11 +50,15 @@ class DetalheSheet extends StatelessWidget {
                   height: 180),
             ),
             const SizedBox(height: 16),
+
+            // Nome da receita
             Text(
               receita.nome,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 10),
+
+            // Chips com tempo, porções e categoria
             Wrap(
               spacing: 8,
               runSpacing: 6,
@@ -58,6 +69,8 @@ class DetalheSheet extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
+
+            // Lista de ingredientes com marcador de bolinha laranja
             const Text('Ingredientes',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
@@ -78,9 +91,12 @@ class DetalheSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+
+            // Modo de preparo com numeração automática em círculos laranjas
             const Text('Modo de preparo',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
+            // asMap().entries dá acesso tanto ao índice (e.key) quanto ao valor (e.value)
             ...receita.modoPreparo.asMap().entries.map(
                   (e) => Padding(
                     padding: const EdgeInsets.only(bottom: 10),
@@ -91,7 +107,7 @@ class DetalheSheet extends StatelessWidget {
                           radius: 14,
                           backgroundColor: AppTheme.laranja,
                           child: Text(
-                            '${e.key + 1}',
+                            '${e.key + 1}', // número do passo (começa em 1)
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -115,6 +131,7 @@ class DetalheSheet extends StatelessWidget {
     );
   }
 
+  // Cria um chip (etiqueta) com ícone e texto, usados para tempo, porções e categoria.
   Widget _chip(IconData icon, String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

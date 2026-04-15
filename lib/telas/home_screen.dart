@@ -7,6 +7,8 @@ import '../widgets/app_theme.dart';
 import '../widgets/receita_card.dart';
 import '../widgets/detalhes_sheet.dart';
 
+// Tela inicial do app. É StatefulWidget porque exibe dados que mudam
+// (listas de receitas carregadas do banco) e controla o índice do carrossel.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -17,9 +19,9 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   final _db = DBHelper();
 
-  List<Receita> _destaques = [];
-  List<Receita> _todasReceitas = [];
-  int _carouselIndex = 0;
+  List<Receita> _destaques = [];     // receitas marcadas como favorito (aparecem no carrossel)
+  List<Receita> _todasReceitas = []; // todas as receitas cadastradas
+  int _carouselIndex = 0;            // controla qual bolinha indicadora está ativa
   bool _loading = true;
 
   @override
@@ -28,8 +30,10 @@ class HomeScreenState extends State<HomeScreen> {
     _carregar();
   }
 
+  // Exposto publicamente para que o MainNav possa recarregar a tela ao trocar de aba
   Future<void> reload() => _carregar();
 
+  // Busca os dados do banco e atualiza o estado da tela
   Future<void> _carregar() async {
     setState(() => _loading = true);
     final destaques = await _db.getDestaques();
@@ -41,6 +45,7 @@ class HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // Abre o painel de detalhes da receita como um modal deslizante
   void _abrirDetalhe(Receita receita) {
     showModalBottomSheet(
       context: context,
@@ -48,7 +53,7 @@ class HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (_) => DetalheSheet(
         receita: receita,
-        onFavoritoChanged: _carregar,
+        onFavoritoChanged: _carregar, // recarrega ao favoritar dentro do detalhe
       ),
     );
   }
@@ -58,11 +63,14 @@ class HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppTheme.cinzaFundo,
       body: _loading
+          // Exibe um indicador de carregamento enquanto os dados são buscados
           ? const Center(
               child: CircularProgressIndicator(color: AppTheme.laranja))
+          // RefreshIndicator permite puxar a tela para baixo e recarregar
           : RefreshIndicator(
               onRefresh: _carregar,
               color: AppTheme.laranja,
+              // CustomScrollView permite misturar um SliverAppBar com conteúdo rolável
               child: CustomScrollView(
                 slivers: [
                   _buildAppBar(),
@@ -75,6 +83,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Header da tela que encolhe ao rolar (SliverAppBar com expandedHeight)
   SliverAppBar _buildAppBar() {
     return SliverAppBar(
       expandedHeight: 100,
@@ -93,12 +102,15 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Carrossel de receitas em destaque (favoritas).
+  // Se não houver nenhum destaque, retorna um widget vazio (SizedBox.shrink).
   Widget _buildCarrossel() {
     if (_destaques.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Título da seção
         const Padding(
           padding: EdgeInsets.fromLTRB(20, 20, 20, 12),
           child: Row(
@@ -116,10 +128,11 @@ class HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
+
+        // Carrossel de cards com imagem e nome da receita
         CarouselSlider.builder(
           itemCount: _destaques.length,
-          // index é a posição do item na lista _destaques
-          // realIndex é a posição "absoluta" no carrossel infinito
+          // index = posição na lista | realIndex = posição absoluta no loop infinito
           itemBuilder: (context, index, realIndex) {
             final receita = _destaques[index];
             return Padding(
@@ -131,11 +144,13 @@ class HomeScreenState extends State<HomeScreen> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
+                      // Imagem de fundo do card
                       ImagemReceita(
                         path: receita.imagemPath,
                         width: double.infinity,
                         height: 200,
                       ),
+                      // Gradiente escuro na parte de baixo para o texto ficar legível
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -148,6 +163,7 @@ class HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
+                      // Nome e informações sobrepostos na parte inferior da imagem
                       Positioned(
                         bottom: 16,
                         left: 16,
@@ -187,21 +203,24 @@ class HomeScreenState extends State<HomeScreen> {
           },
           options: CarouselOptions(
             height: 200,
-            viewportFraction: 0.85, // Cada card ocupa 85%
-            enableInfiniteScroll: _destaques.length > 1, // Loop só se tiver >1 item
+            viewportFraction: 0.85, // cada card ocupa 85% da largura (mostra borda do próximo)
+            enableInfiniteScroll: _destaques.length > 1, // loop infinito só faz sentido com >1 item
             autoPlay: _destaques.length > 1,
             autoPlayInterval: const Duration(seconds: 4),
             onPageChanged: (index, _) => setState(() => _carouselIndex = index),
           ),
         ),
+
+        // Pontinhos indicadores de página — só aparecem se houver mais de 1 destaque
         if (_destaques.length > 1)
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate( // Cria os pontinhos indicadores
+              // Gera um ponto para cada receita em destaque
+              children: List.generate(
                 _destaques.length,
-                (i) => AnimatedContainer( // O ponto ativo fica mais largo
+                (i) => AnimatedContainer( // o ponto ativo anima para uma largura maior
                   duration: const Duration(milliseconds: 300),
                   margin: const EdgeInsets.symmetric(horizontal: 3),
                   width: _carouselIndex == i ? 20 : 8,
@@ -220,6 +239,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Seção com a lista completa de receitas cadastradas
   Widget _buildSecaoTodasReceitas() {
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -231,6 +251,8 @@ class HomeScreenState extends State<HomeScreen> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
+
+          // Estado vazio: instruções para o usuário adicionar a primeira receita
           if (_todasReceitas.isEmpty)
             const Center(
               child: Padding(
@@ -250,6 +272,7 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             )
           else
+            // Lista não rolável (o scroll quem faz é o CustomScrollView pai)
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -273,4 +296,3 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-

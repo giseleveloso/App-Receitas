@@ -8,6 +8,9 @@ import '../widgets/app_theme.dart';
 
 const _categorias = ['Café da manhã', 'Almoço', 'Jantar', 'Lanche'];
 
+// Tela de formulário para cadastrar uma nova receita.
+// O parâmetro [onSaved] é um callback chamado pelo MainNav após salvar,
+// que redireciona para a home e atualiza as outras telas.
 class NovaReceitaScreen extends StatefulWidget {
   final VoidCallback? onSaved;
 
@@ -18,27 +21,28 @@ class NovaReceitaScreen extends StatefulWidget {
 }
 
 class NovaReceitaScreenState extends State<NovaReceitaScreen> {
+  // Chave do formulário — usada para acionar a validação de todos os campos de uma vez
   final _formKey = GlobalKey<FormState>();
   final _db = DBHelper();
-  final _uuid = const Uuid();
+  final _uuid = const Uuid(); // gera IDs únicos para cada receita
   final _picker = ImagePicker();
 
-  //Lê e escreve nos campos de texto
-  final _nomeCtrl = TextEditingController(); 
+  // Controllers leem e escrevem nos campos de texto
+  final _nomeCtrl = TextEditingController();
   final _tempoCtrl = TextEditingController(text: '15');
   final _porcoesCtrl = TextEditingController(text: '2');
   final _ingredienteCtrl = TextEditingController();
   final _passoCtrl = TextEditingController();
 
   String _categoria = 'Almoço';
-  // Lista em memória, atualizada com setState
-  final List<String> _ingredientes = [];
+  final List<String> _ingredientes = []; // lista em memória, atualizada com setState
   final List<String> _passos = [];
   File? _imagem;
-  bool _salvando = false; // Desabilita o botão durante o save
+  bool _salvando = false; // desabilita o botão enquanto salva no banco
 
   @override
   void dispose() {
+    // Libera os controllers da memória quando a tela é destruída
     _nomeCtrl.dispose();
     _tempoCtrl.dispose();
     _porcoesCtrl.dispose();
@@ -47,6 +51,8 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
     super.dispose();
   }
 
+  // Limpa todos os campos do formulário.
+  // Chamado pelo MainNav após salvar com sucesso, antes de voltar para a home.
   void reset() {
     _formKey.currentState?.reset();
     setState(() {
@@ -63,12 +69,14 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
     });
   }
 
-  Future<void> _escolherImagem() async { //escolhe da galeria
+  // Abre a galeria do dispositivo para o usuário escolher uma foto
+  Future<void> _escolherImagem() async {
     final picked = await _picker.pickImage(
         source: ImageSource.gallery, maxWidth: 800, imageQuality: 80);
     if (picked != null) setState(() => _imagem = File(picked.path));
   }
 
+  // Adiciona o texto do campo de ingrediente à lista e limpa o campo
   void _addIngrediente() {
     final t = _ingredienteCtrl.text.trim();
     if (t.isEmpty) return;
@@ -78,6 +86,7 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
     });
   }
 
+  // Adiciona o texto do campo de passo à lista e limpa o campo
   void _addPasso() {
     final t = _passoCtrl.text.trim();
     if (t.isEmpty) return;
@@ -87,9 +96,12 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
     });
   }
 
+  // Valida o formulário, monta o objeto Receita e salva no banco de dados
   Future<void> _salvar() async {
-    //Verifica se estão vazios
+    // Aciona os validators de todos os TextFormFields
     if (!_formKey.currentState!.validate()) return;
+
+    // Validações extras que o Form não cobre (listas não vazias)
     if (_ingredientes.isEmpty) {
       _snack('Adicione pelo menos um ingrediente.', Colors.orange);
       return;
@@ -102,7 +114,7 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
     setState(() => _salvando = true);
     try {
       final receita = Receita(
-        id: _uuid.v4(),
+        id: _uuid.v4(), // ID único gerado automaticamente
         nome: _nomeCtrl.text.trim(),
         categoria: _categoria,
         tempoPreparo: int.tryParse(_tempoCtrl.text) ?? 15,
@@ -113,7 +125,9 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
         criadoEm: DateTime.now(),
       );
       await _db.inserir(receita);
+
       if (!mounted) return;
+      // Se veio do MainNav, chama o callback; senão, fecha a tela com Navigator
       if (widget.onSaved != null) {
         widget.onSaved!();
       } else {
@@ -126,6 +140,7 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
     }
   }
 
+  // Exibe uma mensagem rápida (snackbar) na parte inferior da tela
   void _snack(String msg, Color cor) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
@@ -143,12 +158,15 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
         elevation: 0,
       ),
       backgroundColor: AppTheme.cinzaFundo,
+      // Form agrupa todos os campos e permite validar todos de uma vez com _formKey
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+
             // ── Foto ──────────────────────────────────────────
+            // Toque abre a galeria; mostra a imagem escolhida ou um botão de adicionar
             GestureDetector(
               onTap: _escolherImagem,
               child: Container(
@@ -159,7 +177,6 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
                   border: Border.all(
                       color: AppTheme.laranja.withValues(alpha: 0.4), width: 2),
                 ),
-                //Se tiver adicionado alguma imagem, mostra ela, senão sinal para adicionar
                 child: _imagem != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(14),
@@ -192,6 +209,7 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
             const SizedBox(height: 12),
 
             // ── Tempo e Porções ───────────────────────────────
+            // Dois campos lado a lado usando Row + Expanded
             Row(children: [
               Expanded(
                 child: TextFormField(
@@ -216,6 +234,7 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
             const SizedBox(height: 16),
 
             // ── Categoria ─────────────────────────────────────
+            // Chips de seleção única — o selecionado fica laranja
             const Text('Categoria',
                 style: TextStyle(
                     fontSize: 13,
@@ -248,10 +267,12 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
             const SizedBox(height: 20),
 
             // ── Ingredientes ──────────────────────────────────
+            // Lista dinâmica: cada item adicionado aparece com botão de remover (X)
             const Text('Ingredientes',
                 style:
                     TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
+            // asMap().entries fornece índice (e.key) e valor (e.value) para cada item
             ..._ingredientes.asMap().entries.map((e) => ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
@@ -265,13 +286,14 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
                         setState(() => _ingredientes.removeAt(e.key)),
                   ),
                 )),
+            // Campo de entrada + botão "+" para adicionar à lista
             Row(children: [
               Expanded(
                 child: TextField(
                   controller: _ingredienteCtrl,
                   decoration:
                       _inputDeco('Adicione um por vez', 'Ex: 2 ovos'),
-                  onSubmitted: (_) => _addIngrediente(),
+                  onSubmitted: (_) => _addIngrediente(), // permite confirmar pelo teclado
                 ),
               ),
               const SizedBox(width: 8),
@@ -280,6 +302,7 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
             const SizedBox(height: 20),
 
             // ── Modo de preparo ───────────────────────────────
+            // Igual aos ingredientes, mas os itens são numerados sequencialmente
             const Text('Modo de preparo',
                 style:
                     TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
@@ -290,7 +313,7 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
                   leading: CircleAvatar(
                     radius: 12,
                     backgroundColor: AppTheme.laranja,
-                    child: Text('${e.key + 1}',
+                    child: Text('${e.key + 1}', // número do passo
                         style: const TextStyle(
                             color: Colors.white, fontSize: 11)),
                   ),
@@ -318,6 +341,7 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
             const SizedBox(height: 28),
 
             // ── Botão salvar ──────────────────────────────────
+            // Fica desabilitado e mostra um spinner enquanto o salvamento está em andamento
             ElevatedButton(
               onPressed: _salvando ? null : _salvar,
               style: ElevatedButton.styleFrom(
@@ -344,6 +368,7 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
     );
   }
 
+  // Estilo padrão para todos os campos de texto do formulário
   InputDecoration _inputDeco(String label, String hint) => InputDecoration(
         labelText: label,
         hintText: hint,
@@ -359,6 +384,7 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
         ),
       );
 
+  // Botão "+" quadrado laranja usado ao lado dos campos de ingrediente e passo
   Widget _btnAdd(VoidCallback onTap) => GestureDetector(
         onTap: onTap,
         child: Container(
