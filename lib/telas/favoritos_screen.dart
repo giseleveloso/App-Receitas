@@ -1,42 +1,35 @@
 import 'package:flutter/material.dart';
 import '../modelos/receita.dart';
-import '../database/db_helper.dart';
+import '../controllers/favoritos_controller.dart';
 import '../widgets/app_theme.dart';
 import '../widgets/receita_card.dart';
 import '../widgets/detalhes_sheet.dart';
 
-// Tela que exibe apenas as receitas marcadas como favorito.
-// É StatefulWidget porque a lista pode mudar enquanto o app está aberto
-// (ex: usuário desfavorita uma receita no painel de detalhes).
 class FavoritosScreen extends StatefulWidget {
-  const FavoritosScreen({super.key});
+  final FavoritosController controller;
+
+  const FavoritosScreen({super.key, required this.controller});
 
   @override
   FavoritosScreenState createState() => FavoritosScreenState();
 }
 
 class FavoritosScreenState extends State<FavoritosScreen> {
-  final _db = DBHelper();
-  List<Receita> _favoritos = [];
-  bool _loading = true;
-
   @override
   void initState() {
     super.initState();
-    reload();
+    widget.controller.addListener(_onUpdate);
+    widget.controller.carregar();
   }
 
-  // Exposto publicamente para que o MainNav possa recarregar ao trocar de aba
-  Future<void> reload() async {
-    setState(() => _loading = true);
-    final favoritos = await _db.getDestaques(); // busca apenas as marcadas como favorito
-    setState(() {
-      _favoritos = favoritos;
-      _loading = false;
-    });
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onUpdate);
+    super.dispose();
   }
 
-  // Abre o painel de detalhes e recarrega a lista se o favorito mudar
+  void _onUpdate() => setState(() {});
+
   void _abrirDetalhe(Receita receita) {
     showModalBottomSheet(
       context: context,
@@ -44,22 +37,22 @@ class FavoritosScreenState extends State<FavoritosScreen> {
       backgroundColor: Colors.transparent,
       builder: (_) => DetalheSheet(
         receita: receita,
-        onFavoritoChanged: reload,
+        onFavoritoChanged: widget.controller.carregar,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = widget.controller;
     return Scaffold(
       backgroundColor: AppTheme.cinzaFundo,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header fixo no topo com fundo branco
             Container(
-              width: double.infinity, // garante que o fundo se estende até a borda
+              width: double.infinity,
               color: AppTheme.branco,
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
               child: const Text(
@@ -71,33 +64,30 @@ class FavoritosScreenState extends State<FavoritosScreen> {
                 ),
               ),
             ),
-
-            // Conteúdo principal: loading, estado vazio ou lista de favoritos
             Expanded(
-              child: _loading
+              child: c.carregando
                   ? const Center(
                       child: CircularProgressIndicator(color: AppTheme.laranja),
                     )
-                  : _favoritos.isEmpty
+                  : c.favoritos.isEmpty
                       ? _buildEmptyState()
-                      // RefreshIndicator permite puxar para recarregar
                       : RefreshIndicator(
-                          onRefresh: reload,
+                          onRefresh: c.carregar,
                           color: AppTheme.laranja,
                           child: ListView.separated(
                             padding: const EdgeInsets.all(20),
-                            itemCount: _favoritos.length,
+                            itemCount: c.favoritos.length,
                             separatorBuilder: (_, __) =>
                                 const SizedBox(height: 10),
                             itemBuilder: (context, index) {
-                              final receita = _favoritos[index];
+                              final receita = c.favoritos[index];
                               return SizedBox(
                                 height: 90,
                                 child: ReceitaCard(
                                   receita: receita,
                                   compacto: true,
                                   onTap: () => _abrirDetalhe(receita),
-                                  onFavoritoChanged: reload,
+                                  onFavoritoChanged: c.toggleFavorito,
                                 ),
                               );
                             },
@@ -110,14 +100,12 @@ class FavoritosScreenState extends State<FavoritosScreen> {
     );
   }
 
-  // Exibido quando não há nenhuma receita favoritada ainda
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.favorite_outline,
-              size: 72, color: Colors.grey.shade300),
+          Icon(Icons.favorite_outline, size: 72, color: Colors.grey.shade300),
           const SizedBox(height: 16),
           const Text(
             'Nenhum favorito ainda.',

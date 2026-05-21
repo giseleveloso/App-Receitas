@@ -1,7 +1,6 @@
 import 'package:app_exercicio_aula1/widgets/imagem_receita.dart';
 import 'package:flutter/material.dart';
 import '../modelos/receita.dart';
-import '../database/db_helper.dart';
 import 'app_theme.dart';
 
 // Card reutilizável para exibir uma receita em listas.
@@ -12,7 +11,7 @@ class ReceitaCard extends StatelessWidget {
   final Receita receita;
   final bool compacto;
   final VoidCallback onTap;
-  final VoidCallback? onFavoritoChanged;
+  final Future<void> Function(String id, bool novoFavorito)? onFavoritoChanged;
 
   const ReceitaCard({
     super.key,
@@ -67,7 +66,7 @@ class ReceitaCard extends StatelessWidget {
                       style: const TextStyle(
                           fontWeight: FontWeight.w700, fontSize: 15),
                       maxLines: 1,
-                      overflow: TextOverflow.ellipsis, // adiciona "..." se o nome for longo
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -89,11 +88,8 @@ class ReceitaCard extends StatelessWidget {
                       ? AppTheme.laranja
                       : AppTheme.cinzaTexto,
                 ),
-                onPressed: () async {
-                  // Inverte o estado de favorito no banco e notifica a tela pai
-                  await DBHelper().toggleFavorito(receita.id, !receita.favorito);
-                  onFavoritoChanged!();
-                },
+                onPressed: () =>
+                    onFavoritoChanged!(receita.id, !receita.favorito),
               ),
           ],
         ),
