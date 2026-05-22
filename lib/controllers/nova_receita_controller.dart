@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
@@ -15,14 +14,16 @@ class NovaReceitaController extends ChangeNotifier {
   String categoria = 'Almoço';
   List<String> ingredientes = [];
   List<String> passos = [];
-  File? imagem;
+  XFile? imagem;
+  Uint8List? imagemBytes;
   bool salvando = false;
 
   Future<void> escolherImagem() async {
     final picked = await _picker.pickImage(
         source: ImageSource.gallery, maxWidth: 800, imageQuality: 80);
     if (picked != null) {
-      imagem = File(picked.path);
+      imagem = picked;
+      imagemBytes = await picked.readAsBytes();
       notifyListeners();
     }
   }
@@ -66,6 +67,10 @@ class NovaReceitaController extends ChangeNotifier {
     salvando = true;
     notifyListeners();
     try {
+      String? imagemUrl;
+      if (imagem != null) {
+        imagemUrl = await _service.uploadImagem(imagem!);
+      }
       final receita = Receita(
         id: _uuid.v4(),
         nome: nome.trim(),
@@ -74,7 +79,7 @@ class NovaReceitaController extends ChangeNotifier {
         porcoes: int.tryParse(porcoes) ?? 2,
         ingredientes: List.from(ingredientes),
         modoPreparo: List.from(passos),
-        imagemPath: imagem?.path,
+        imagemPath: imagemUrl,
         criadoEm: DateTime.now(),
       );
       await _service.salvar(receita);
@@ -92,6 +97,7 @@ class NovaReceitaController extends ChangeNotifier {
     ingredientes.clear();
     passos.clear();
     imagem = null;
+    imagemBytes = null;
     salvando = false;
     notifyListeners();
   }

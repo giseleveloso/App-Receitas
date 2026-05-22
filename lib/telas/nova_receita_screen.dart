@@ -115,10 +115,10 @@ class NovaReceitaScreenState extends State<NovaReceitaScreen> {
                   border: Border.all(
                       color: AppTheme.laranja.withValues(alpha: 0.4), width: 2),
                 ),
-                child: c.imagem != null
+                child: c.imagemBytes != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(14),
-                        child: Image.file(c.imagem!,
+                        child: Image.memory(c.imagemBytes!,
                             fit: BoxFit.cover, width: double.infinity),
                       )
                     : const Column(

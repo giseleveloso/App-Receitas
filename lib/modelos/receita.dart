@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Receita {
   final String id;
   final String nome;
@@ -38,11 +36,11 @@ class Receita {
         'categoria': categoria,
         'tempo_preparo': tempoPreparo,
         'porcoes': porcoes,
-        'ingredientes': jsonEncode(ingredientes),
-        'modo_preparo': jsonEncode(modoPreparo),
+        'ingredientes': ingredientes,
+        'modo_preparo': modoPreparo,
         'imagem_path': imagemPath,
         'criado_em': criadoEm.toIso8601String(),
-        'favorito': favorito ? 1 : 0,
+        'favorito': favorito,
       };
 
   factory Receita.fromMap(Map<String, dynamic> map) => Receita(
@@ -51,12 +49,10 @@ class Receita {
         categoria: map['categoria'] as String,
         tempoPreparo: map['tempo_preparo'] as int,
         porcoes: map['porcoes'] as int,
-        ingredientes:
-            List<String>.from(jsonDecode(map['ingredientes'] as String)),
-        modoPreparo:
-            List<String>.from(jsonDecode(map['modo_preparo'] as String)),
+        ingredientes: List<String>.from(map['ingredientes'] as List),
+        modoPreparo: List<String>.from(map['modo_preparo'] as List),
         imagemPath: map['imagem_path'] as String?,
         criadoEm: DateTime.parse(map['criado_em'] as String),
-        favorito: (map['favorito'] as int) == 1,
+        favorito: map['favorito'] as bool,
       );
 }

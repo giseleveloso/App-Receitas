@@ -1,3 +1,4 @@
+import 'package:image_picker/image_picker.dart';
 import '../database/db_helper.dart';
 import '../modelos/receita.dart';
 import '../constantes/filtros.dart';
@@ -13,6 +14,8 @@ class ReceitaService {
 
   Future<void> toggleFavorito(String id, bool novoFavorito) =>
       _db.toggleFavorito(id, novoFavorito);
+
+  Future<String> uploadImagem(XFile imagem) => _db.uploadImagem(imagem);
 
   List<Receita> filtrar(
     List<Receita> receitas, {
