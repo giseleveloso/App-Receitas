@@ -6,6 +6,7 @@ import '../controllers/home_controller.dart';
 import '../widgets/app_theme.dart';
 import '../widgets/receita_card.dart';
 import '../widgets/detalhes_sheet.dart';
+import '../widgets/receita_do_dia_card.dart';
 
 class HomeScreen extends StatefulWidget {
   final HomeController controller;
@@ -61,6 +62,7 @@ class HomeScreenState extends State<HomeScreen> {
                 slivers: [
                   _buildAppBar(),
                   SliverToBoxAdapter(child: _buildCarrossel()),
+                  const SliverToBoxAdapter(child: ReceitaDoDiaCard()),
                   SliverToBoxAdapter(child: _buildSecaoTodasReceitas()),
                   const SliverToBoxAdapter(child: SizedBox(height: 80)),
                 ],

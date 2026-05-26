@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   supabase_flutter: ^2.8.4
+  http: ^1.2.0
   carousel_slider: ^5.0.0   # Widget de carrossel de imagens
   image_picker: ^1.1.2      # Abre galeria/câmera/explorador de arquivos para escolher foto
   uuid: ^4.5.1              # Gera IDs únicos
