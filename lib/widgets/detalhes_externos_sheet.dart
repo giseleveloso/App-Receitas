@@ -1,11 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import '../modelos/receita.dart';
 import '../modelos/receita_externa.dart';
+import '../services/receita_service.dart';
 import 'app_theme.dart';
 import 'imagem_receita.dart';
 
-class DetalhesExternosSheet extends StatelessWidget {
+class DetalhesExternosSheet extends StatefulWidget {
   final ReceitaExterna receita;
   const DetalhesExternosSheet({super.key, required this.receita});
+
+  @override
+  State<DetalhesExternosSheet> createState() => _DetalhesExternosSheetState();
+}
+
+class _DetalhesExternosSheetState extends State<DetalhesExternosSheet> {
+  final _service = ReceitaService();
+  bool _salvando = false;
+  bool _salvo = false;
+
+  Future<void> _salvar() async {
+    setState(() => _salvando = true);
+    try {
+      final r = widget.receita;
+      final passos = r.instrucoes
+          .split(RegExp(r'\r?\n'))
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+
+      await _service.salvar(Receita(
+        id: const Uuid().v4(),
+        nome: r.nome,
+        categoria: r.categoria,
+        tempoPreparo: 0,
+        porcoes: 2,
+        ingredientes: r.ingredientes,
+        modoPreparo: passos.isNotEmpty ? passos : [r.instrucoes],
+        imagemPath: r.imagemUrl,
+        criadoEm: DateTime.now(),
+      ));
+      if (mounted) setState(() => _salvo = true);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao salvar: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _salvando = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +83,13 @@ class DetalhesExternosSheet extends StatelessWidget {
             const SizedBox(height: 16),
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: ImagemReceita(path: receita.imagemUrl, width: double.infinity, height: 180),
+              child: ImagemReceita(
+                  path: widget.receita.imagemUrl,
+                  width: double.infinity,
+                  height: 180),
             ),
             const SizedBox(height: 16),
-            Text(receita.nome,
+            Text(widget.receita.nome,
                 style:
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
             const SizedBox(height: 10),
@@ -46,15 +97,15 @@ class DetalhesExternosSheet extends StatelessWidget {
               spacing: 8,
               runSpacing: 6,
               children: [
-                _chip(Icons.restaurant_menu, receita.categoria),
-                _chip(Icons.public, receita.area),
+                _chip(Icons.restaurant_menu, widget.receita.categoria),
+                _chip(Icons.public, widget.receita.area),
               ],
             ),
             const SizedBox(height: 20),
             const Text('Ingredientes',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
-            ...receita.ingredientes.map(
+            ...widget.receita.ingredientes.map(
               (i) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 3),
                 child: Row(
@@ -74,8 +125,30 @@ class DetalhesExternosSheet extends StatelessWidget {
             const Text('Modo de preparo',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
-            Text(receita.instrucoes,
+            Text(widget.receita.instrucoes,
                 style: const TextStyle(height: 1.6, fontSize: 14)),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _salvo || _salvando ? null : _salvar,
+              icon: _salvando
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    )
+                  : Icon(_salvo
+                      ? Icons.check_rounded
+                      : Icons.bookmark_add_outlined),
+              label: Text(_salvo ? 'Salva nas suas receitas!' : 'Salvar receita'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _salvo ? Colors.green : AppTheme.laranja,
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(48),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
+              ),
+            ),
           ],
         ),
       ),
