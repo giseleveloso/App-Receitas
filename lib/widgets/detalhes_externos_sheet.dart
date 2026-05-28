@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../modelos/receita_externa.dart';
 import 'app_theme.dart';
+import 'imagem_receita.dart';
 
 class DetalhesExternosSheet extends StatelessWidget {
   final ReceitaExterna receita;
@@ -34,12 +35,7 @@ class DetalhesExternosSheet extends StatelessWidget {
             const SizedBox(height: 16),
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                receita.imagemUrl,
-                height: 180,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+              child: ImagemReceita(path: receita.imagemUrl, width: double.infinity, height: 180),
             ),
             const SizedBox(height: 16),
             Text(receita.nome,

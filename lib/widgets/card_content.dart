@@ -1,4 +1,5 @@
 import 'package:app_exercicio_aula1/widgets/detalhes_externos_sheet.dart';
+import 'package:app_exercicio_aula1/widgets/imagem_receita.dart';
 import 'package:flutter/material.dart';
 import '../modelos/receita_externa.dart';
 import 'app_theme.dart';
@@ -33,19 +34,7 @@ class CardContent extends StatelessWidget {
             ClipRRect(
               borderRadius:
                   const BorderRadius.horizontal(left: Radius.circular(16)),
-              child: Image.network(
-                receita.imagemUrl,
-                width: 110,
-                height: 110,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 110,
-                  height: 110,
-                  color: AppTheme.laranjaClaro,
-                  child: const Icon(Icons.restaurant,
-                      color: AppTheme.laranja, size: 40),
-                ),
-              ),
+              child: ImagemReceita(path: receita.imagemUrl, width: 110, height: 110),
             ),
             Expanded(
               child: Padding(
