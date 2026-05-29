@@ -1,3 +1,4 @@
+// Modelo de dados de uma receita criada pelo próprio usuário do app.
 class Receita {
   final String id;
   final String nome;
@@ -6,7 +7,7 @@ class Receita {
   final int porcoes;
   final List<String> ingredientes;
   final List<String> modoPreparo;
-  final String? imagemPath;
+  final String? imagemPath; // URL pública no Supabase Storage
   final DateTime criadoEm;
   final bool favorito;
 

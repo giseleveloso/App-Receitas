@@ -2,7 +2,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../modelos/receita.dart';
 
+// Camada de acesso ao Supabase
+// Toda comunicação com o Supabase passa por aqui, o resto do app não acessa o _client diretamente.
 class DBHelper {
+  // Cliente Supabase inicializado uma única vez em main.dart
   static final _client = Supabase.instance.client;
   static const _table = 'receitas';
   static const _bucket = 'imagens-receitas';
@@ -29,12 +32,11 @@ class DBHelper {
   }
 
   Future<void> toggleFavorito(String id, bool favorito) async {
-    await _client
-        .from(_table)
-        .update({'favorito': favorito})
-        .eq('id', id);
+    await _client.from(_table).update({'favorito': favorito}).eq('id', id);
   }
 
+  // Faz upload de uma imagem para o Storage do Supabase e retorna a URL pública
+  // O nome do arquivo usa o timestamp em ms para garantir unicidade
   Future<String> uploadImagem(XFile imagem) async {
     final bytes = await imagem.readAsBytes();
     final ext = imagem.path.split('.').last;

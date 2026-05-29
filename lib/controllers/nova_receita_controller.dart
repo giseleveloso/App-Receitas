@@ -14,10 +14,11 @@ class NovaReceitaController extends ChangeNotifier {
   String categoria = 'Almoço';
   List<String> ingredientes = [];
   List<String> passos = [];
-  XFile? imagem;
-  Uint8List? imagemBytes;
+  XFile? imagem; // arquivo selecionado da galeria
+  Uint8List? imagemBytes; // bytes da imagem para pré-visualização na tela
   bool salvando = false;
 
+  // Abre a galeria do dispositivo e limita a resolução para não sobrecarregar o upload
   Future<void> escolherImagem() async {
     final picked = await _picker.pickImage(
         source: ImageSource.gallery, maxWidth: 800, imageQuality: 80);
@@ -75,7 +76,8 @@ class NovaReceitaController extends ChangeNotifier {
         id: _uuid.v4(),
         nome: nome.trim(),
         categoria: categoria,
-        tempoPreparo: int.tryParse(tempo) ?? 15,
+        tempoPreparo:
+            int.tryParse(tempo) ?? 15, // fallback se o campo estiver inválido
         porcoes: int.tryParse(porcoes) ?? 2,
         ingredientes: List.from(ingredientes),
         modoPreparo: List.from(passos),
@@ -92,6 +94,7 @@ class NovaReceitaController extends ChangeNotifier {
     }
   }
 
+  // Volta o controller ao estado inicial para que o formulário possa ser reutilizado
   void reset() {
     categoria = 'Almoço';
     ingredientes.clear();

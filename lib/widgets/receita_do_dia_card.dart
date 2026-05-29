@@ -4,6 +4,8 @@ import '../modelos/receita_externa.dart';
 import '../services/meal_service.dart';
 import 'app_theme.dart';
 
+// Widget que busca e exibe a "Receita do Dia" usando a API TheMealDB.
+// Gerencia os três estados possíveis: carregando, erro e exibindo o card.
 class ReceitaDoDiaCard extends StatefulWidget {
   const ReceitaDoDiaCard({super.key});
 
@@ -15,7 +17,7 @@ class ReceitaDoDiaCardState extends State<ReceitaDoDiaCard> {
   final _service = MealService();
   ReceitaExterna? _receita;
   bool _carregando = true;
-  bool _erro = false;
+  bool _erro = false; // true quando a API retornou null (sem conexão ou falha)
 
   @override
   void initState() {
@@ -23,6 +25,7 @@ class ReceitaDoDiaCardState extends State<ReceitaDoDiaCard> {
     _carregar();
   }
 
+  // Busca uma receita aleatória na API e atualiza o estado conforme o resultado
   Future<void> _carregar() async {
     setState(() {
       _carregando = true;

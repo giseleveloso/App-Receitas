@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'app_theme.dart';
 
+// Widget reutilizável para exibir a imagem de uma receita.
+// Detecta automaticamente se o caminho é uma URL (receita da API) ou
+// um arquivo local (receita do usuário) e usa o widget correto em cada caso.
 class ImagemReceita extends StatelessWidget {
   final String? path;
   final double width;
@@ -14,6 +17,7 @@ class ImagemReceita extends StatelessWidget {
     this.height = 80,
   });
 
+  // Verifica se o path é uma URL HTTP/HTTPS (imagem da API externa)
   bool get _isUrl =>
       path != null &&
       (path!.startsWith('http://') || path!.startsWith('https://'));
@@ -22,7 +26,7 @@ class ImagemReceita extends StatelessWidget {
   Widget build(BuildContext context) {
     if (path == null || path!.isEmpty) return _placeholder();
 
-//Receita API
+    // Receita API — carrega da internet
     if (_isUrl) {
       return Image.network(
         path!,
@@ -33,7 +37,7 @@ class ImagemReceita extends StatelessWidget {
       );
     }
 
-// Receita local
+    // Receita local — lê do sistema de arquivos do dispositivo
     return Image.file(
       File(path!),
       width: width,
@@ -43,6 +47,7 @@ class ImagemReceita extends StatelessWidget {
     );
   }
 
+  // Exibido quando não há imagem ou quando o carregamento falha
   Widget _placeholder() {
     return Container(
       width: width,

@@ -51,6 +51,7 @@ class FavoritosScreenState extends State<FavoritosScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Cabeçalho fixo com o título da tela
             Container(
               width: double.infinity,
               color: AppTheme.branco,
@@ -65,6 +66,7 @@ class FavoritosScreenState extends State<FavoritosScreen> {
               ),
             ),
             Expanded(
+              // Mostra loading → estado vazio → lista, dependendo do estado do controller
               child: c.carregando
                   ? const Center(
                       child: CircularProgressIndicator(color: AppTheme.laranja),
@@ -100,6 +102,7 @@ class FavoritosScreenState extends State<FavoritosScreen> {
     );
   }
 
+  // Tela exibida quando não há nenhum favorito salvo
   Widget _buildEmptyState() {
     return Center(
       child: Column(

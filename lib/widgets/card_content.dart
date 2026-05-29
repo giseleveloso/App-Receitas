@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../modelos/receita_externa.dart';
 import 'app_theme.dart';
 
+// Card que exibe o resumo da receita do dia (API externa).
+// Ao tocar, abre o DetalhesExternosSheet com as informações completas.
 class CardContent extends StatelessWidget {
   final ReceitaExterna receita;
   const CardContent({super.key, required this.receita});

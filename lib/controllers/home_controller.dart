@@ -7,10 +7,12 @@ class HomeController extends ChangeNotifier {
 
   HomeController(this._service);
 
-  List<Receita> destaques = [];
-  List<Receita> todasReceitas = [];
+  List<Receita> destaques = []; // receitas favoritadas (exibidas no carrossel)
+  List<Receita> todasReceitas =
+      []; // todas as receitas (exibidas na lista abaixo)
   bool carregando = false;
 
+  // Busca destaques e todas as receitas e notifica a UI
   Future<void> carregar() async {
     carregando = true;
     notifyListeners();
@@ -20,6 +22,7 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Alterna o favorito e recarrega a lista para refletir a mudança na UI
   Future<void> toggleFavorito(String id, bool novoFavorito) async {
     await _service.toggleFavorito(id, novoFavorito);
     await carregar();

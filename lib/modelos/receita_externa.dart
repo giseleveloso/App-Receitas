@@ -1,8 +1,10 @@
+// Modelo de dados de uma receita vinda da API externa TheMealDB
+// Diferente de Receita, não tem tempo de preparo nem porções — a API não fornece esses campos
 class ReceitaExterna {
   final String id;
   final String nome;
   final String categoria;
-  final String area;
+  final String area; // país/região de origem da receita
   final String instrucoes;
   final String imagemUrl;
   final List<String> ingredientes;
@@ -17,6 +19,8 @@ class ReceitaExterna {
     required this.ingredientes,
   });
 
+  // A API retorna ingredientes e medidas em campos separados e numerados:
+  // O loop combina os dois em uma única string por ingrediente, ignorando os vazios.
   factory ReceitaExterna.fromJson(Map<String, dynamic> json) {
     final ingredientes = <String>[];
     for (int i = 1; i <= 20; i++) {

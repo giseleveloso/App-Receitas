@@ -18,7 +18,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  int _carouselIndex = 0;
+  int _carouselIndex =
+      0; // índice atual do carrossel para animar os indicadores
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   void _onUpdate() => setState(() {});
 
+  // Abre o painel de detalhes da receita como bottom sheet deslizante
   void _abrirDetalhe(Receita receita) {
     showModalBottomSheet(
       context: context,

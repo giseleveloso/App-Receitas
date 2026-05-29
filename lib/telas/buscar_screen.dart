@@ -22,6 +22,7 @@ class BuscarScreenState extends State<BuscarScreen> {
   void initState() {
     super.initState();
     widget.controller.addListener(_onUpdate);
+    // Listener no campo de texto: repassa cada digitação ao controller para filtrar em tempo real
     _searchController.addListener(
         () => widget.controller.atualizarQuery(_searchController.text));
     widget.controller.carregar();

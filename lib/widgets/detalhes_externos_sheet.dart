@@ -6,6 +6,7 @@ import '../services/receita_service.dart';
 import 'app_theme.dart';
 import 'imagem_receita.dart';
 
+// Painel de detalhes de uma receita externa (TheMealDB)
 class DetalhesExternosSheet extends StatefulWidget {
   final ReceitaExterna receita;
   const DetalhesExternosSheet({super.key, required this.receita});
@@ -19,6 +20,7 @@ class _DetalhesExternosSheetState extends State<DetalhesExternosSheet> {
   bool _salvando = false;
   bool _salvo = false;
 
+  // Converte a receita externa para o modelo interno e persiste no Supabase.
   Future<void> _salvar() async {
     setState(() => _salvando = true);
     try {
@@ -140,7 +142,8 @@ class _DetalhesExternosSheetState extends State<DetalhesExternosSheet> {
                   : Icon(_salvo
                       ? Icons.check_rounded
                       : Icons.bookmark_add_outlined),
-              label: Text(_salvo ? 'Salva nas suas receitas!' : 'Salvar receita'),
+              label:
+                  Text(_salvo ? 'Salva nas suas receitas!' : 'Salvar receita'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _salvo ? Colors.green : AppTheme.laranja,
                 foregroundColor: Colors.white,

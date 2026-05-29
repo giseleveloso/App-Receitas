@@ -20,7 +20,6 @@ class MainNav extends StatefulWidget {
 class _MainNavState extends State<MainNav> {
   int _selectedIndex = 0;
 
-  // Serviço único compartilhado por todos os controllers
   final _service = ReceitaService();
 
   late final HomeController _homeController;
@@ -28,7 +27,6 @@ class _MainNavState extends State<MainNav> {
   late final BuscarController _buscarController;
   late final NovaReceitaController _novaReceitaController;
 
-  // GlobalKey mantido apenas para chamar reset() na tela de nova receita
   final _novaReceitaKey = GlobalKey<NovaReceitaScreenState>();
 
   late final List<Widget> _pages;

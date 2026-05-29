@@ -84,9 +84,8 @@ class ReceitaCard extends StatelessWidget {
               IconButton(
                 icon: Icon(
                   receita.favorito ? Icons.favorite : Icons.favorite_border,
-                  color: receita.favorito
-                      ? AppTheme.laranja
-                      : AppTheme.cinzaTexto,
+                  color:
+                      receita.favorito ? AppTheme.laranja : AppTheme.cinzaTexto,
                 ),
                 onPressed: () =>
                     onFavoritoChanged!(receita.id, !receita.favorito),
